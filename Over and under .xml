@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml" is_dbot="true">
+
+  <variables>
+    <variable id="stake">STAKE</variable>
+    <variable id="init">INITIAL_STAKE</variable>
+    <variable id="d1">D1</variable>
+    <variable id="d2">D2</variable>
+    <variable id="d3">D3</variable>
+    <variable id="d4">D4</variable>
+    <variable id="lost">LOST</variable>
+  </variables>
+
+  <!-- TRADE DEFINITION -->
+  <block type="trade_definition" deletable="false" x="20" y="20">
+    <statement name="TRADE_OPTIONS">
+      <block type="trade_definition_market" deletable="false">
+        <field name="MARKET_LIST">synthetic_index</field>
+        <field name="SUBMARKET_LIST">random_index</field>
+        <field name="SYMBOL_LIST">R_100</field>
+        <next>
+          <block type="trade_definition_tradetype" deletable="false">
+            <field name="TRADETYPECAT_LIST">digits</field>
+            <field name="TRADETYPE_LIST">overunder</field>
+            <next>
+              <block type="trade_definition_contracttype" deletable="false">
+                <field name="TYPE_LIST">DIGITOVER</field>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+
+    <!-- INIT -->
+    <statement name="INITIALIZATION">
+      <block type="variables_set">
+        <field name="VAR" id="stake">STAKE</field>
+        <value name="VALUE">
+          <block type="math_number"><field name="NUM">1</field></block>
+        </value>
+        <next>
+          <block type="variables_set">
+            <field name="VAR" id="init">INITIAL_STAKE</field>
+            <value name="VALUE">
+              <block type="math_number"><field name="NUM">1</field></block>
+            </value>
+            <next>
+              <block type="variables_set">
+                <field name="VAR" id="lost">LOST</field>
+                <value name="VALUE">
+                  <block type="logic_boolean"><field name="BOOL">FALSE</field></block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+
+    <!-- TICK LOOP -->
+    <statement name="SUBMARKET">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <block type="math_constant"><field name="CONSTANT">INFINITY</field></block>
+        </value>
+        <statement name="DO">
+
+          <!-- READ LAST 4 DIGITS -->
+          <block type="variables_set">
+            <field name="VAR" id="d1">D1</field>
+            <value name="VALUE"><block type="last_digit"/></value>
+            <next>
+              <block type="variables_set">
+                <field name="VAR" id="d2">D2</field>
+                <value name="VALUE">
+                  <block type="lists_getIndex">
+                    <field name="WHERE">FROM_END</field>
+                    <value name="VALUE"><block type="lastDigitList"/></value>
+                    <value name="AT"><block type="math_number"><field name="NUM">2</field></block></value>
+                  </block>
+                </value>
+                <next>
+                  <block type="variables_set">
+                    <field name="VAR" id="d3">D3</field>
+                    <value name="VALUE">
+                      <block type="lists_getIndex">
+                        <field name="WHERE">FROM_END</field>
+                        <value name="VALUE"><block type="lastDigitList"/></value>
+                        <value name="AT"><block type="math_number"><field name="NUM">3</field></block></value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set">
+                        <field name="VAR" id="d4">D4</field>
+                        <value name="VALUE">
+                          <block type="lists_getIndex">
+                            <field name="WHERE">FROM_END</field>
+                            <value name="VALUE"><block type="lastDigitList"/></value>
+                            <value name="AT"><block type="math_number"><field name="NUM">4</field></block></value>
+                          </block>
+                        </value>
+
+                        <!-- MAIN CONDITION -->
+                        <next>
+                          <block type="controls_if">
+                            <value name="IF0">
+                              <block type="logic_operation">
+                                <field name="OP">AND</field>
+                                <value name="A">
+                                  <block type="logic_operation">
+                                    <field name="OP">AND</field>
+                                    <value name="A">
+                                      <block type="logic_compare"><field name="OP">LTE</field>
+                                        <value name="A"><block type="variables_get"><field name="VAR" id="d1">D1</field></block></value>
+                                        <value name="B"><block type="math_number"><field name="NUM">2</field></block></value>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="logic_compare"><field name="OP">LTE</field>
+                                        <value name="A"><block type="variables_get"><field name="VAR" id="d2">D2</field></block></value>
+                                        <value name="B"><block type="math_number"><field name="NUM">2</field></block></value>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="logic_operation">
+                                    <field name="OP">AND</field>
+                                    <value name="A">
+                                      <block type="logic_compare"><field name="OP">LTE</field>
+                                        <value name="A"><block type="variables_get"><field name="VAR" id="d3">D3</field></block></value>
+                                        <value name="B"><block type="math_number"><field name="NUM">2</field></block></value>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="logic_compare"><field name="OP">LTE</field>
+                                        <value name="A"><block type="variables_get"><field name="VAR" id="d4">D4</field></block></value>
+                                        <value name="B"><block type="math_number"><field name="NUM">2</field></block></value>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+
+                            <statement name="DO0">
+                              <block type="purchase">
+                                <field name="PURCHASE_LIST">DIGITOVER</field>
+                              </block>
+                            </statement>
+
+                          </block>
+                        </next>
+
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+
+        </statement>
+      </block>
+    </statement>
+  </block>
+
+  <!-- AFTER PURCHASE -->
+  <block type="after_purchase" x="900" y="40">
+    <statement name="AFTERPURCHASE_STACK">
+
+      <block type="controls_if">
+        <value name="IF0">
+          <block type="contract_check_result">
+            <field name="CHECK_RESULT">loss</field>
+          </block>
+        </value>
+
+        <!-- RECOVERY -->
+        <statement name="DO0">
+          <block type="controls_if">
+            <value name="IF0">
+              <block type="last_digit_even_odd">
+                <field name="COUNT">7</field>
+                <field name="TYPE">EVEN</field>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="purchase">
+                <field name="PURCHASE_LIST">DIGITODD</field>
+              </block>
+            </statement>
+
+            <value name="IF1">
+              <block type="last_digit_even_odd">
+                <field name="COUNT">7</field>
+                <field name="TYPE">ODD</field>
+              </block>
+            </value>
+            <statement name="DO1">
+              <block type="purchase">
+                <field name="PURCHASE_LIST">DIGITEVEN</field>
+              </block>
+            </statement>
+
+          </block>
+        </statement>
+
+        <!-- ON WIN RESET -->
+        <statement name="ELSE">
+          <block type="variables_set">
+            <field name="VAR" id="stake">STAKE</field>
+            <value name="VALUE">
+              <block type="variables_get">
+                <field name="VAR" id="init">INITIAL_STAKE</field>
+              </block>
+            </value>
+          </block>
+        </statement>
+
+      </block>
+
+    </statement>
+  </block>
+
+</xml>
