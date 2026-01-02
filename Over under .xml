@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+
+  <!-- VARIABLES -->
+  <variables>
+    <variable id="digits">digits</variable>
+    <variable id="last_digit">last_digit</variable>
+    <variable id="lost">lost</variable>
+  </variables>
+
+  <!-- START -->
+  <block type="trade" id="trade_start" x="20" y="20">
+    <statement name="INITIALIZATION">
+      <block type="variables_set">
+        <field name="VAR" id="digits">digits</field>
+        <value name="VALUE">
+          <block type="lists_create_empty"/>
+        </value>
+      </block>
+    </statement>
+
+    <statement name="SUBMARKET">
+      <block type="trade_definition_market">
+        <field name="MARKET">synthetic_index</field>
+        <field name="SYMBOL">R_100</field>
+      </block>
+    </statement>
+
+    <statement name="TICK_ANALYSIS">
+      <block type="on_tick">
+
+        <!-- GET LAST DIGIT -->
+        <statement name="DO">
+          <block type="variables_set">
+            <field name="VAR" id="last_digit">last_digit</field>
+            <value name="VALUE">
+              <block type="last_digit"/>
+            </value>
+          </block>
+
+          <!-- PUSH DIGIT -->
+          <next>
+            <block type="lists_setIndex">
+              <mutation at="false"/>
+              <field name="MODE">INSERT</field>
+              <field name="WHERE">LAST</field>
+              <field name="VAR" id="digits">digits</field>
+              <value name="TO">
+                <block type="variables_get">
+                  <field name="VAR" id="last_digit">last_digit</field>
+                </block>
+              </value>
+            </block>
+          </next>
+        </statement>
+
+        <!-- MAIN LOGIC -->
+        <next>
+          <block type="controls_if">
+
+            <!-- LAST 4 ≤ 2 -->
+            <value name="IF0">
+              <block type="logic_operation">
+                <field name="OP">AND</field>
+                <value name="A">
+                  <block type="list_all_condition">
+                    <field name="COUNT">4</field>
+                    <field name="OPERATOR">&lt;=</field>
+                    <field name="VALUE">2</field>
+                    <field name="LIST">digits</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="logic_negate">
+                    <value name="BOOL">
+                      <block type="variables_get">
+                        <field name="VAR" id="lost">lost</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+
+            <statement name="DO0">
+              <block type="trade_definition_contract">
+                <field name="CONTRACT_TYPE">DIGITOVER</field>
+                <field name="BARRIER">2</field>
+                <field name="DURATION">1</field>
+                <field name="DURATION_UNIT">t</field>
+              </block>
+            </statement>
+
+            <!-- LAST 4 ≥ 7 -->
+            <value name="IF1">
+              <block type="logic_operation">
+                <field name="OP">AND</field>
+                <value name="A">
+                  <block type="list_all_condition">
+                    <field name="COUNT">4</field>
+                    <field name="OPERATOR">&gt;=</field>
+                    <field name="VALUE">7</field>
+                    <field name="LIST">digits</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="logic_negate">
+                    <value name="BOOL">
+                      <block type="variables_get">
+                        <field name="VAR" id="lost">lost</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+
+            <statement name="DO1">
+              <block type="trade_definition_contract">
+                <field name="CONTRACT_TYPE">DIGITUNDER</field>
+                <field name="BARRIER">7</field>
+                <field name="DURATION">1</field>
+                <field name="DURATION_UNIT">t</field>
+              </block>
+            </statement>
+
+          </block>
+        </next>
+
+      </block>
+    </statement>
+
+    <!-- RESULT -->
+    <statement name="RESULT">
+      <block type="controls_if">
+        <value name="IF0">
+          <block type="trade_result">
+            <field name="RESULT">loss</field>
+          </block>
+        </value>
+
+        <!-- RECOVERY -->
+        <statement name="DO0">
+          <block type="controls_if">
+
+            <!-- ALL EVEN -->
+            <value name="IF0">
+              <block type="list_all_even_odd">
+                <field name="COUNT">7</field>
+                <field name="TYPE">EVEN</field>
+                <field name="LIST">digits</field>
+              </block>
+            </value>
+
+            <statement name="DO0">
+              <block type="trade_definition_contract">
+                <field name="CONTRACT_TYPE">DIGITODD</field>
+                <field name="DURATION">1</field>
+                <field name="DURATION_UNIT">t</field>
+              </block>
+            </statement>
+
+            <!-- ALL ODD -->
+            <value name="IF1">
+              <block type="list_all_even_odd">
+                <field name="COUNT">7</field>
+                <field name="TYPE">ODD</field>
+                <field name="LIST">digits</field>
+              </block>
+            </value>
+
+            <statement name="DO1">
+              <block type="trade_definition_contract">
+                <field name="CONTRACT_TYPE">DIGITEVEN</field>
+                <field name="DURATION">1</field>
+                <field name="DURATION_UNIT">t</field>
+              </block>
+            </statement>
+
+          </block>
+        </statement>
+
+      </block>
+    </statement>
+
+  </block>
+</xml>
